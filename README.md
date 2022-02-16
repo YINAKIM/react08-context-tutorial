@@ -1,70 +1,53 @@
-# Getting Started with Create React App
+# ContextAPI?
+***프로젝트 안에서 전역으로 사용하고 싶은 props가 있다면?***   
+(예를들어, 사용자 로그인정보, 애플리케이션 환경설정, 테마 등등)     
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+기본적인 리액트 구조상, 최상위컴포넌트인 App.js에 state로 관리하고, 자식컴포넌트에 props로 전달하여 사용가능   
+그런데 그 자식컴포넌트도 또 자식컴포넌트가 있고, 타고타고 자식컴포넌트를 사용할 수 있다.   
+> [최상위App컴포넌트, 자식A를사용] - [자식컴포넌트A, 자식B를사용] - [자식컴포넌트B, 자식C를사용] ... [막내컴포넌트Z]   
 
-## Available Scripts
+그럼 만약,   
+최하위 컴포넌트에서 App.js의 state를 props로 전달받아 [막내Z]에서 state로 사용하려고 한다면?
+> App.js ~~ 막내컴포넌트Z 까지  
+> props로 넣어주고 > state갱신 > 컴포넌트리렌더링 
 
-In the project directory, you can run:
+- 이렇게 전체 컴포넌트의 비효율적인 리렌더링이 일어난다. (렌더링 느려지는 원인) 
+- 새로운 값을 추가해서 사용하려면, 코드에 props를 넣고 state로 사용하는 코드수정을 모든 컴포넌트에 해야한다. (야근의 원인..)
 
-### `yarn start`
+***그래서 프로젝트 전역상태관리를 위해 사용하는 기능이 Context API***   
+(리덕스, 리액트라우터, styled-components 등의 라이브러리도 Context API를 기반으로 구현되어있다.)
+>Context API를 사용하면 Context를 만들어 "단 한번에" 사용하려는 "전역상태값"을 받아와서 사용할 수 있다.   
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
 
-### `yarn test`
+## 새로운 Context(전역상태값) 만들기 : 프로젝트에 context값 등록하기
+```
+import {createContext} from "react";
+const ColorContext = createContext({color:'black'});
+export default ColorContext;
+```
+- createContext(defaultValue) : 새로운 context값(전역상태값)을 만드는 함수
+- defaultValue : 해당 Context의 기본상태를 지정한다. 
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `yarn build`
+## Context(전역상태값) 사용하기 : 프로젝트에 등록된 context값 사용하기
+```
+import ColorContext from "../contexts/colors"; // 내가 context로 등록한 값
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+const ColorBox = () => {
+    return (
+        <ColorContext.Consumer>
+            {value => (
+                <div
+                style={{
+                    width: '64px', height: '64px', background: value.color
+                }}
+                ></div>
+            )}
+        </ColorContext.Consumer>
+    );
+};
+```
+- context값은 props로 받아오는 것이 아니라, 해당 Context컴포넌트에 들어있는 [Consumer컴포넌트]를 통해 사용
+- {value => ()}   
+  ***Render Props(Function as a child) 패턴*** : 컴포넌트의 children이 있어야 할 자리에 값이 아닌 함수를 전달
