@@ -1,7 +1,31 @@
-import {createContext} from "react";
+import {createContext, useState} from "react";
 
-const ColorContext = createContext({color:'black'});
-                     // createContext에 넣어주는 defaultValue는 Provider를 사용하지 않았을 때만 사용된다.
-                     // 사용하는 컴포넌트에서 Provider를 사용하고 기본값보여준다고 값을 명시하지 않으면오류발생
+const ColorContext = createContext({
+    state : {color:'black', subcolor:'red'},
+    actions : {
+        setColor :() => {},
+        setSubcolor :() => { console.log("set서브컬러 실행됨")},
+    } // createContext에 actions객체의 속성으로 함수를 전달
+});
 
+
+const ColorProvider = ({children}) => {
+    const [color, setColor] = useState('black');
+    const [subcolor, setSubcolor] = useState('red');
+
+    const value = {
+        state : {color,subcolor},
+        actions : {setColor, setSubcolor}
+    };
+
+    return (
+        <ColorContext.Provider value={value}>{children}</ColorContext.Provider>
+    );
+};
+
+const { Consumer : ColorConsumer } = ColorContext;
+// const ColorConsumer = ColorContext.Consumer와 같은 의미,
+
+export { ColorProvider, ColorConsumer }; // ColorConsumer, ColorProvider 도 내보냄.. 그럼 import  { ColorProvider, ColorConsumer } from "./contexts/colors"; 이것만 따로 사용할 수 있겠네 ?
+                                         //
 export default ColorContext;

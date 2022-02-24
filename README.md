@@ -51,3 +51,23 @@ const ColorBox = () => {
 - context값은 props로 받아오는 것이 아니라, 해당 Context컴포넌트에 들어있는 [Consumer컴포넌트]를 통해 사용
 - {value => ()}   
   ***Render Props(Function as a child) 패턴*** : 컴포넌트의 children이 있어야 할 자리에 값이 아닌 함수를 전달
+  
+
+# Provider
+Provider를 사용하면 "사용하는 쪽에서" Context의 value를 변경할 수 있다.
+- createContext에 넣어주는 defaultValue는 Provider를 사용하지 않았을 때만 사용된다.
+- Provider를 사용하고 기본값보여준다고 value값을 "명시하지 않으면오류발생"
+```
+function App() {
+  return (
+      <ColorContext.Provider value={{color: 'red'}}>
+          <div>
+            <ColorBox/>
+          </div>
+      </ColorContext.Provider>
+  );
+}
+```
+
+# 동적 Context 사용하기
+Context value에는 무조건 상태값만 있어야하는 것이 아니라, 함수를 전달할 수 있다.
