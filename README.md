@@ -18,19 +18,124 @@
 (리덕스, 리액트라우터, styled-components 등의 라이브러리도 Context API를 기반으로 구현되어있다.)
 >Context API를 사용하면 Context를 만들어 "단 한번에" 사용하려는 "전역상태값"을 받아와서 사용할 수 있다.   
 
+## Context API
+
+리액트에서 전역상태값 관리를 위한 context객체를 만들고, 사용하기 위해 제공되는 API
+
+1. React.createContext
+2. Context.Provider
+3. Context.Consumer
+4. Context.displayName
+5. Class.contextType → 클래스 컴포넌트에서 사용
 
 
-## 새로운 Context(전역상태값) 만들기 : 프로젝트에 context값 등록하기
+>💡 공식문서에서 자꾸 context를 사용한다고 하지 않고 "구독"한다고 표현한다. 
+> When React renders a component that "subscribes" to this Context object    
+> it will read the current context value from the closest matching Provider above it in the tree.
+> 
+> 1.리액티브 프로그래밍에서, [생산-연산-소비]의 개념
+>* 생산자 → Publisher (아마 리액트에서 Context.Provider?)
+>* 연산자 → Operator 
+>* 소비자 → Subscriber (아마 리액트에서 Context.Consumer?)
+> 
+> 2.리액티브 프로그래밍에서, Publisher / Subscribe 패턴
+
+더 자세히 알아볼 것
+
+---
+
+### 1. React.createContext
+
+```jsx
+const MyContext = React.createContext(defaultValue);
+```
+
+- **input** ) context객체에 들어갈 현재값
+  - 기본적으로, Context객체를 구독하고있는 컴포넌트(subscriber) 를 렌더링 할 때 React는 트리상위에서 가장 가까이 있는 Provider로부터 현재값을 읽는다. ( → Provider본 후 더 자세히 )
+  - 컴포넌트 트리안에서 적절한 Provider를 찾지 못하면? defaultValue에 넣어준 값을 사용한다.
+
+    (기본값은 컴포넌트를 독립적으로 테스트할 때 유용한 값, Provider로 undefined를 보내도 defaultValue로 읽지않는다. ...?)
+
+- **output** ) context객체를 만든다.
+#### 1-1 새로운 Context(전역상태값) 만들기 : 프로젝트에 context값 등록하기
 ```
 import {createContext} from "react";
 const ColorContext = createContext({color:'black'});
 export default ColorContext;
 ```
 - createContext(defaultValue) : 새로운 context값(전역상태값)을 만드는 함수
-- defaultValue : 해당 Context의 기본상태를 지정한다. 
+- defaultValue : 해당 Context의 기본상태를 지정한다.
+
+### 2. Context.Provider
+
+```jsx
+<MyContext.Provider value={값} />
+```
+
+- Provider도 React컴포넌트 중 하나다.
+- Context오브젝트에 포함되어있다.
+- **context를 구독하는 컴포넌트(subscriber)들에게 context의 변화를 알리는 역할**
+
+Provider가 어떻게 전달?
+
+- Provider컴포넌트의 value라는 prop를 하위컴포넌트에 전달, (→ 전달받을 수 있는 컴포넌트의 수는 제한이 없다.)
+
+  (*참고 : Provider가 하위Provider를 갖는것도 가능, 이 경우 최하위Provider의 값이 우선시됨)
+
+- Provider의 value가 바뀔 때 마다, **하위컴포넌트가 다시 리렌더링된다.**
+
+context값이 바뀌었는지 여부를 확인하기?
+
+- Object.is와 동일한 알고리즘을 사용 (true면 동일객체, false면 변한객체)
+
+  → 이전 값과 새로운값을 비교하여 변화를 감지한다.
+
+  → Provider의 value로 Objcet를 보낼 경우의 주의사항
+
+  Provider를 사용하는 부모(context객체)가 렌더링될 때 마다
+
+  불필요하게 하위컴포넌트가 다시 렌더링되는 문제가 생길 수 있음
+  
+#### 2-1. Provider로 상태값 업데이트하기
+  Provider를 사용하면 "사용하는 쪽에서" Context의 value를 변경할 수 있다.
+- createContext에 넣어주는 defaultValue는 Provider를 사용하지 않았을 때만 사용된다.
+- Provider를 사용하고 기본값보여준다고 value값을 "명시하지 않으면오류발생"
+```
+function App() {
+  return (
+      <ColorContext.Provider value={{color: 'red'}}>
+          <div>
+            <ColorBox/>
+          </div>
+      </ColorContext.Provider>
+  );
+}
+```
 
 
-## Context(전역상태값) 사용하기 : 프로젝트에 등록된 context값 사용하기
+### 3. Context.Consumer
+
+```jsx
+<MyContext.Consumer>
+  {value => ( 
+      //context값을 이용한 렌더링로직이 들어간다.
+  )}
+</MyContext.Consumer>
+```
+
+- context의 변화를 구독하는 React컴포넌트다(subscriber)
+- 함수컴포넌트 안에서 context를 구독할 수 있다.
+- Context.Consumer의 자식(children)은 함수여야한다. → render props 패턴
+
+  → Consumer의 자식(꼭 함수)은 context의 현재값을 받아서 React노드를 반환
+
+- Context.Consumer의 자식(children)은 함수가 받는 `value`
+  매개변수 값은 해당 context의 Provider 중 상위 트리에서 가장 가까운 Provider의 `value`
+  prop과 동일
+- (Provider의 기본로직이 적용된다 → ) 상위에 Provider가 없다면 `value` 매개변수 값은 `createContext()`
+  에 보냈던 `defaultValue`와 동일
+
+#### 3-1. Context(전역상태값) 사용하기 : 프로젝트에 등록된 context값 사용하기
 ```
 import ColorContext from "../contexts/colors"; // 내가 context로 등록한 값
 
@@ -52,22 +157,6 @@ const ColorBox = () => {
 - {value => ()}   
   ***Render Props(Function as a child) 패턴*** : 컴포넌트의 children이 있어야 할 자리에 값이 아닌 함수를 전달
   
-
-# Provider
-Provider를 사용하면 "사용하는 쪽에서" Context의 value를 변경할 수 있다.
-- createContext에 넣어주는 defaultValue는 Provider를 사용하지 않았을 때만 사용된다.
-- Provider를 사용하고 기본값보여준다고 value값을 "명시하지 않으면오류발생"
-```
-function App() {
-  return (
-      <ColorContext.Provider value={{color: 'red'}}>
-          <div>
-            <ColorBox/>
-          </div>
-      </ColorContext.Provider>
-  );
-}
-```
 
 # 동적 Context 사용하기
 Context value에는 무조건 상태값만 있어야하는 것이 아니라, 함수를 전달할 수 있다.
