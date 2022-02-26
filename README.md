@@ -164,13 +164,9 @@ Context value에는 무조건 상태값만 있어야하는 것이 아니라, 함
 
 ---
 
-<h1 style="color:red">Context의 구조 파악하기</h1>   
-   
+# Context의 구조 파악하기   
 
-
-<h4 style="color:red">App.js : 최종 렌더링되는 컴포넌트 구조</h4>  
-   
-
+#### App.js : 최종 렌더링되는 컴포넌트 구조
 ```javascript
 function App() {
   return (
@@ -186,7 +182,7 @@ function App() {
 - ColorProvider의 자식컴포넌트로 \<SelectColors/>와 \<ColorBox/> 컴포넌트가 렌더링되는 구조
 
 
-<h4 style="color:red">colors.js에서 export되는 ColorProvider컴포넌트 : Provider가 된다. </h4>   
+#### colors.js에서 export되는 ColorProvider컴포넌트 : Provider가 된다.   
    
 
 ```javascript
@@ -226,11 +222,10 @@ export default ColorContext;// -------------------------------------------------
 [5] ColorContext를 통째로사용할 수도 있도록 export   
 
 
-<h4 style="color:red">SelectColors와 ColorBox : Consumer가 된다.</h4>   
-   
-
+<h4 style="color:red">SelectColors와 ColorBox : Consumer가 된다.</h4>
 ColorContext.ColorConsumer를 return하는 컴포넌트들이다.
-<h4 style="color:yellow">1. SelectColors.js</h4>
+#### 1. SelectColors.js   
+
 ```javascript
 import {ColorConsumer} from "../contexts/colors"; // --------------------------------------------------------[1]
 const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
@@ -255,8 +250,7 @@ export default SelectColors;
 [3] SelectColors는 \<ColorConsumer/>를 리턴한다.   
 
 
-<h4 style="color:yellow">2. ColorBox.js</h4>   
-   
+#### 2. ColorBox.js
 ```javascript
 import ColorContext from "../contexts/colors"; // --------------------------------------------------------[1]
 import {ColorConsumer} from "../contexts/colors";
