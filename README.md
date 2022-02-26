@@ -223,21 +223,21 @@ export default ColorContext;// -------------------------------------------------
 ColorContext.ColorConsumer를 return하는 컴포넌트들이다.    
 #### 1. SelectColors.js         
 ```javascript
-import {ColorConsumer} from "../contexts/colors"; // --------------------------------------------------------[1]
+import {ColorConsumer} from "../contexts/colors"; // --------------------------------[1]
 const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
 const SelectColors = () => {
     return ( 
         <div>
             <h2>색상을 선택하세요</h2>
             <ColorConsumer>
-                {({actions}) => ( // ------------------------------------------------------------------------[2]
+                {({actions}) => ( // ------------------------------------------------[2]
                                   // ...(내부 JSX 생략)...
                 )}
             </ColorConsumer>
             <hr/>
         </div>
     );
-};// -------------------------------------------------------------------------------------------------------[3]
+};// --------------------------------------------------------------------------------[3]
 export default SelectColors;
 ```
 [1] 내가 createContext로 생성한 context객체   
@@ -248,19 +248,19 @@ export default SelectColors;
 
 #### 2. ColorBox.js   
 ```javascript
-import ColorContext from "../contexts/colors"; // --------------------------------------------------------[1]
+import ColorContext from "../contexts/colors"; // ----------------------------------[1]
 import {ColorConsumer} from "../contexts/colors";
 
 
 const ColorBox = () => {
     return (
         <ColorConsumer>
-            {value => (     // ---------------------------------------------------------------------------[2]
+            {value => (     // -----------------------------------------------------[2]
                             // ...(내부JSX생략)...
             )}
         </ColorConsumer>
     );
-};// -----------------------------------------------------------------------------------------------------[3]
+};// -------------------------------------------------------------------------------[3]
 export default ColorBox;
 ```
 [1] 내가 createContext로 생성한 context객체   
