@@ -166,7 +166,7 @@ Context value에는 무조건 상태값만 있어야하는 것이 아니라, 함
 
 # Context의 구조 파악하기   
 
-#### App.js : 최종 렌더링되는 컴포넌트 구조   
+### App.js : 최종 렌더링되는 컴포넌트 구조      
 - ColorProvider의 자식컴포넌트로 \<SelectColors/>와 \<ColorBox/> 컴포넌트가 렌더링되는 구조
 ```javascript
 function App() {
@@ -181,7 +181,7 @@ function App() {
 }
 ```
     
-#### colors.js에서 export되는 ColorProvider컴포넌트 : Provider가 된다.   
+### colors.js에서 export되는 ColorProvider컴포넌트 : Provider가 된다.       
 ```javascript
 import {createContext, useState} from "react";
 
@@ -219,9 +219,9 @@ export default ColorContext;// -------------------------------------------------
 [5] ColorContext를 통째로사용할 수도 있도록 export   
 
 
-<h4 style="color:red">SelectColors와 ColorBox : Consumer가 된다.</h4>
-ColorContext.ColorConsumer를 return하는 컴포넌트들이다.
-#### 1. SelectColors.js   
+### SelectColors와 ColorBox : Consumer가 된다.
+ColorContext.ColorConsumer를 return하는 컴포넌트들이다.    
+#### 1. SelectColors.js         
 ```javascript
 import {ColorConsumer} from "../contexts/colors"; // --------------------------------------------------------[1]
 const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
