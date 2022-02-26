@@ -46,7 +46,7 @@
 
 ### 1. React.createContext
 
-```jsx
+```javascript
 const MyContext = React.createContext(defaultValue);
 ```
 
@@ -58,7 +58,7 @@ const MyContext = React.createContext(defaultValue);
 
 - **output** ) context객체를 만든다.
 #### 1-1 새로운 Context(전역상태값) 만들기 : 프로젝트에 context값 등록하기
-```
+```javascript
 import {createContext} from "react";
 const ColorContext = createContext({color:'black'});
 export default ColorContext;
@@ -100,7 +100,7 @@ context값이 바뀌었는지 여부를 확인하기?
   Provider를 사용하면 "사용하는 쪽에서" Context의 value를 변경할 수 있다.
 - createContext에 넣어주는 defaultValue는 Provider를 사용하지 않았을 때만 사용된다.
 - Provider를 사용하고 기본값보여준다고 value값을 "명시하지 않으면오류발생"
-```
+```javascript
 function App() {
   return (
       <ColorContext.Provider value={{color: 'red'}}>
@@ -136,7 +136,7 @@ function App() {
   에 보냈던 `defaultValue`와 동일
 
 #### 3-1. Context(전역상태값) 사용하기 : 프로젝트에 등록된 context값 사용하기
-```
+```javascript
 import ColorContext from "../contexts/colors"; // 내가 context로 등록한 값
 
 const ColorBox = () => {
@@ -160,3 +160,112 @@ const ColorBox = () => {
 
 # 동적 Context 사용하기
 Context value에는 무조건 상태값만 있어야하는 것이 아니라, 함수를 전달할 수 있다.
+
+
+---
+
+<h1 style="color:red">Context의 구조 파악하기</h1>   
+
+<h4 style="color:red">App.js : 최종 렌더링되는 컴포넌트 구조</h4>
+```javascript
+function App() {
+  return (
+      <ColorProvider>
+          <div>
+              <SelectColors/>
+              <ColorBox/>
+          </div>
+      </ColorProvider>
+  );
+}
+```
+- ColorProvider의 자식컴포넌트로 \<SelectColors/>와 \<ColorBox/> 컴포넌트가 렌더링되는 구조
+
+
+<h4 style="color:red">colors.js에서 export되는 ColorProvider컴포넌트 : Provider가 된다. </h4>
+```javascript
+import {createContext, useState} from "react";
+
+const ColorContext = createContext({
+   //...(React.createContext로 context객체를 만든다)...
+});// ---------------------------------------------------------------------------------------[1]
+
+
+const ColorProvider = ({children}) => {
+  const [color, setColor] = useState('black');
+  const [subcolor, setSubcolor] = useState('red');
+
+  const value = {
+    state : {color,subcolor},
+    actions : {setColor, setSubcolor}
+  };
+
+  // Provider의 props중 하나인 value로 하위컴포넌트(children들)에게 전달한다.
+  // (그럼 Consumer가 자기children함수에서 인자로 받아서 사용함)
+  return (
+          <ColorContext.Provider value={value}>{children}</ColorContext.Provider>
+  );
+};// -----------------------------------------------------------------------------------------[2]
+
+const { Consumer : ColorConsumer } = ColorContext; // ----------------------------------------[3]
+export { ColorProvider, ColorConsumer }; // --------------------------------------------------[4]
+export default ColorContext;// ---------------------------------------------------------------[5]
+```
+[1] React.createContext()로 context객체를 만든다.    
+[2] children을 받아서 value props를 넣어주는 Provider를 만든다.   
+[3] ColorContext.Consumer는 ColorConsumer다.   
+   
+(export하는 부분)      
+[4] Provider와 Consumer를 각각 import하여 사용할 수 있도록 export   
+[5] ColorContext를 통째로사용할 수도 있도록 export   
+
+
+<h4 style="color:red">SelectColors와 ColorBox : Consumer가 된다.</h4>
+
+ColorContext.ColorConsumer를 return하는 컴포넌트들이다.
+<h4 style="color:yellow">1. SelectColors.js</h4>
+```javascript
+import {ColorConsumer} from "../contexts/colors"; // --------------------------------------------------------[1]
+const colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+const SelectColors = () => {
+    return ( 
+        <div>
+            <h2>색상을 선택하세요</h2>
+            <ColorConsumer>
+                {({actions}) => ( // ------------------------------------------------------------------------[2]
+                                  // ...(내부 JSX 생략)...
+                )}
+            </ColorConsumer>
+            <hr/>
+        </div>
+    );
+};// -------------------------------------------------------------------------------------------------------[3]
+export default SelectColors;
+```
+[1] 내가 createContext로 생성한 context객체   
+[2] 여기서 인자로받는 actions도 ColorBox와 같게 "Provider컴포넌트의 props중 value값"과 동일하다.   
+    SelectColors의 상위컴포넌트인 ColorProvider에서 value={여기다넣은거} prop을 받아오는 것! (App.js참고)   
+[3] SelectColors는 \<ColorConsumer/>를 리턴한다.   
+
+
+<h4 style="color:yellow">2. ColorBox.js</h4>
+```javascript
+import ColorContext from "../contexts/colors"; // --------------------------------------------------------[1]
+import {ColorConsumer} from "../contexts/colors";
+
+
+const ColorBox = () => {
+    return (
+        <ColorConsumer>
+            {value => (     // ---------------------------------------------------------------------------[2]
+                            // ...(내부JSX생략)...
+            )}
+        </ColorConsumer>
+    );
+};// -----------------------------------------------------------------------------------------------------[3]
+export default ColorBox;
+```
+[1] 내가 createContext로 생성한 context객체   
+[2] Consumer의 "children함수"에 전달되는 value는 "Provider컴포넌트의 props중 value값"과 동일하다.   
+    ColorBox의 상위컴포넌트인 ColorProvider에서 value={여기다넣은거} prop을 받아오는 것! (App.js참고)   
+[3] ColorBox는 \<ColorConsumer/>를 리턴한다.      

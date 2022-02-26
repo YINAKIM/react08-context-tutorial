@@ -18,6 +18,8 @@ const ColorProvider = ({children}) => {
         actions : {setColor, setSubcolor}
     };
 
+    // Provider의 props중 하나인 value로 하위컴포넌트(children들)에게 전달한다.
+    // 그럼 Consumer가 자기children함수에서 인자로 받아서 사용한다.)
     return (
         <ColorContext.Provider value={value}>{children}</ColorContext.Provider>
     );
